@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"os"
 	"sync"
 
+	"github.com/joho/godotenv"
 	"github.com/rabbitmq/amqp091-go"
 )
 
@@ -15,9 +17,20 @@ var (
 )
 
 func main() {
+	// Cargar variables de entorno desde el archivo .env
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("Error al cargar el archivo .env: %v", err)
+	}
+
+	rabbitMQURL := os.Getenv("RABBITMQ_URL")
+	if rabbitMQURL == "" {
+		log.Fatal("RABBITMQ_URL no está definida en el archivo .env")
+	}
+
 	log.Println("Iniciando rabbit")
 
-	conn, err := amqp091.Dial("amqp://manuel:upchiapas23@54.152.13.45:5672/")
+	conn, err := amqp091.Dial(rabbitMQURL)
 	failOnError(err, "no se conecto a rabbit")
 	defer conn.Close()
 
